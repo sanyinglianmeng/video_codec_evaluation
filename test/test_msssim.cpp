@@ -16,29 +16,24 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110 USA
  */
 /*
- * tiny_ssim.c
- * Computes the Structural Similarity Metric between two rawYV12 video files.
+ * tiny_msssim.c
+ * Computes the Multi-Scale Structural Similarity Metric between two rawYV12 video files.
  * original algorithm:
- * Z. Wang, A. C. Bovik, H. R. Sheikh and E. P. Simoncelli,
- *   "Image quality assessment: From error visibility to structural similarity,"
- *   IEEE Transactions on Image Processing, vol. 13, no. 4, pp. 600-612, Apr. 2004.
+ * Z. Wang, E. P. Simoncelli and A. C. Bovik,
+ *   "Multi-scale structural similarity for image quality assessment,"
+ *   The Thrity-Seventh Asilomar Conference on Signals, Systems & Computers, 
+ *       2003, Pacific Grove, CA, USA, 2003, pp. 1398-1402 Vol.2.
  *
  * To improve speed, this implementation uses the standard approximation of
  * overlapped 8x8 block sums, rather than the original gaussian weights.
  */
 
-/*
- * 上文注释里的重点：
- * 输入格式：两个YV12格式视频
- * 为了提升速度，没有用论文里的高斯卷积核作加权平均，而是用了8x8有重叠的像素块求和的方法，也就是代码里的ssim_4x4x2_core()和ssim_end4()
- */
-
-// #include "config.h"
 #include <inttypes.h>
 #include <limits.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <cstring>
 
 #define FFSWAP(type, a, b) \
     do                     \
@@ -53,13 +48,12 @@
 #define PIXEL_MAX ((1 << BIT_DEPTH) - 1) // 像素值最大值 公式里的L
 typedef uint8_t pixel;                   // 8位无符号 表示像素值
 
-const double WEIGHT[] = {0.0448, 0.2856, 0.3001, 0.2363, 0.1333};
-const int scale = 5;
+const float WEIGHT[] = {0.0448, 0.2856, 0.3001, 0.2363, 0.1333};
 
 typedef struct
 {
-    double L;
-    double C_S;
+    float L;
+    float C_S;
 } ssim_value;
 
 /****************************************************************************
@@ -69,12 +63,6 @@ static void ssim_4x4x2_core(const pixel *pix1, intptr_t stride1,
                             const pixel *pix2, intptr_t stride2,
                             int sums[2][4])
 {
-    // s1 表示 sigma(sigma(a(i, j)))
-    // s2 表示 sigma(sigma(b(i, j)))
-    // ss 表示 sigma(sigma[a(i, j)^2 + b(i, j)^2])
-    // s12 表示 sigma(sigma(a(i, j) * b(i, j)))
-
-    // 函数中计算了一行中两个4x4块，分别将结果存储在sums[0][n]、sums[1][n]中
     int x, y, z;
 
     for (z = 0; z < 2; z++)
@@ -100,12 +88,6 @@ static void ssim_4x4x2_core(const pixel *pix1, intptr_t stride1,
     }
 }
 
-/*
- * s1：原始像素之和
- * s2：重建像素之和
- * ss：原始像素平方之和+重建像素平方之和
- * s12：原始像素*重建像素的值的和
- */
 static ssim_value ssim_end1(int s1, int s2, int ss, int s12)
 {
     ssim_value value;
@@ -114,7 +96,7 @@ static ssim_value ssim_end1(int s1, int s2, int ss, int s12)
  * Maximum value for 9-bit is: ss*64 = (2^9-1)^2*16*4*64 = 1069551616, which will not overflow. */
 #if BIT_DEPTH > 9
     typedef double type;
-    static const double ssim_c1 = .01 * .01 * PIXEL_MAX * PIXEL_MAX * 64;
+    static const double ssim_c1 = .01 * .01 * PIXEL_MAX * PIXEL_MAX * 64 * 64;
     static const double ssim_c2 = .03 * .03 * PIXEL_MAX * PIXEL_MAX * 64 * 63;
 #else
     typedef int type;
@@ -128,29 +110,32 @@ static ssim_value ssim_end1(int s1, int s2, int ss, int s12)
     type fs12 = s12;
     type vars = fss * 64 - fs1 * fs1 - fs2 * fs2;
     type covar = fs12 * 64 - fs1 * fs2;
-    value.L = (double)(2 * fs1 * fs2 + ssim_c1) / (double)(fs1 * fs1 + fs2 * fs2 + ssim_c1);
-    value.C_S = (double)(2 * covar + ssim_c2) / (double)(vars + ssim_c2);
+    
+    value.L = (float)(2 * fs1 * fs2 + ssim_c1) / (float)(fs1 * fs1 + fs2 * fs2 + ssim_c1);
+    value.C_S = (float)(2 * covar + ssim_c2) / (float)(vars + ssim_c2);
+
     return value;
 }
 
 static ssim_value ssim_end4(int sum0[5][4], int sum1[5][4], int width)
 {
-    ssim_value ssim_v;
-    ssim_v.L = 0.0;
-    ssim_v.C_S = 0.0;
+    ssim_value ssim;
+    ssim.L = 0.0;
+    ssim.C_S = 0.0;
+
     int i;
-    ssim_value value;
     for (i = 0; i < width; i++)
     {
-        value = ssim_end1(sum0[i][0] + sum0[i + 1][0] + sum1[i][0] + sum1[i + 1][0],
-                          sum0[i][1] + sum0[i + 1][1] + sum1[i][1] + sum1[i + 1][1],
-                          sum0[i][2] + sum0[i + 1][2] + sum1[i][2] + sum1[i + 1][2],
-                          sum0[i][3] + sum0[i + 1][3] + sum1[i][3] + sum1[i + 1][3]);
-        ssim_v.L += value.L;
-        ssim_v.C_S += value.C_S;
+        ssim_value tmp;
+        tmp = ssim_end1(sum0[i][0] + sum0[i + 1][0] + sum1[i][0] + sum1[i + 1][0],
+                        sum0[i][1] + sum0[i + 1][1] + sum1[i][1] + sum1[i + 1][1],
+                        sum0[i][2] + sum0[i + 1][2] + sum1[i][2] + sum1[i + 1][2],
+                        sum0[i][3] + sum0[i + 1][3] + sum1[i][3] + sum1[i + 1][3]);
+        ssim.L   += tmp.L;
+        ssim.C_S += tmp.C_S;
     }
 
-    return ssim_v;
+    return ssim;
 }
 
 ssim_value ssim_plane(
@@ -163,26 +148,13 @@ ssim_value ssim_plane(
     ssim_value ssim;
     ssim.L = 0.0;
     ssim.C_S = 0.0;
-    /*
-     * 按照4x4的块对像素进行处理的。使用sum1保存上一行块的“信息”，sum0保存当前一行块的“信息”
-     * sum0是一个数组指针，其中存储了一个4元素数组的地址
-     * 换句话说，sum0中每一个元素对应一个4x4块的信息（该信息包含4个元素）。
-     *
-     * 4个元素中：
-     * [0]原始像素之和
-     * [1]重建像素之和
-     * [2]原始像素平方之和+重建像素平方之和
-     * [3]原始像素*重建像素的值的和
-     *
-     */
-    int(*sum0)[4] = (int(*)[4])buf; // 指向长度为4的数组指针
+
+    int(*sum0)[4] = (int(*)[4])buf; 
     int(*sum1)[4] = sum0 + (width >> 2) + 3;
     width >>= 2;
-    height >>= 2; // 除以4 因为SSIM计算以4*4为基本单位
+    height >>= 2; 
     for (y = 1; y < height; y++)
     {
-        // 下面这个循环，只有在第一次执行的时候执行2次，处理第1行和第2行的块
-        // 后面的都只会执行一次
         for (; z <= y; z++)
         {
             // FFSWAP( (int (*)[4]), sum0, sum1 );
@@ -190,88 +162,122 @@ ssim_value ssim_plane(
             sum0 = sum1;
             sum1 = tmp;
 
-            // 获取4x4块的信息(4个值存于长度为4的一维数组)（这里并没有代入公式计算SSIM结果）
-            // 结果存储在sum0中。从左到右每个4x4的块依次存储在sum0[0]，sum0[1]，sum0[2]...
-            // 每次前进2个块，通过ssim_4x4x2_core()计算2个4x4块,两个4×4有一半重叠部分
             for (x = 0; x < width; x += 2)
                 ssim_4x4x2_core(&pix1[4 * (x + z * stride1)], stride1, &pix2[4 * (x + z * stride2)], stride2, &sum0[x]);
         }
-        // sum1是储存上一行的信息，sum0是储存本行的信息，ssim_end4是进行2（line）×4×4×2 2行每行2个4×4的块的单元进行处理
-        ssim_value tmp_value;
+
         for (x = 0; x < width - 1; x += 4)
         {
-            tmp_value = ssim_end4(sum0 + x, sum1 + x, FFMIN(4, width - x - 1));
-            ssim.L += tmp_value.L;
-            ssim.C_S += tmp_value.C_S;
+            ssim_value tmp;
+            tmp = ssim_end4(sum0 + x, sum1 + x, FFMIN(4, width - x - 1));
+            ssim.L   += tmp.L;
+            ssim.C_S += tmp.C_S;
         }
     }
+
     ssim.L /= (height - 1) * (width - 1);
     ssim.C_S /= (height - 1) * (width - 1);
     return ssim;
 }
 
-static void print_results(double ms_ssim[3], int frames, int w, int h)
+static void print_results(float ms_ssim[3], int frames, int w, int h)
 {
-    printf("MSSSIM Y:%.5f U:%.5f V:%.5f All:%.5f\n",
+    printf("MS-SSIM Y:%.5f U:%.5f V:%.5f All:%.5f",
            ms_ssim[0] / frames,
            ms_ssim[1] / frames,
            ms_ssim[2] / frames,
            (ms_ssim[0] * 4 + ms_ssim[1] + ms_ssim[2]) / (frames * 6));
 }
 
-pixel *down_sample(pixel *input, int height, int width, int scale)
+static void downsample_2x2_mean(pixel *input, int width, int height, pixel *output) 
 {
-    pixel *output = new pixel[height * width / 4];
-    int cur = 0;
-    for (int i = 0; i < height && cur < height * width / 4; i += 2)
+    int downsample_width =  width >> 1;
+    int downsample_height = height >> 1;
+
+    for (int y = 0; y < downsample_height; y++) 
     {
-        for (int j = 0; j < width && cur < height * width / 4; j += 2)
+        for (int x =0; x < downsample_width; x++) 
         {
-            output[cur++] = (input[i * width + j] + input[i * width + j] + input[i * width + j] + input[i * width + j]) / 4;
+            output[y * downsample_width + x] = (input[2 * y * width + 2 * x] +
+                                                input[2 * y * width + 2 * x + 1] +
+                                                input[(2 * y + 1) * width + 2 * x] +
+                                                input[(2 * y + 1) * width + 2 * x + 1]) / 4;
         }
     }
-    return output;
 }
 
-double ms_ssim_plane(pixel *pix1, pixel *pix2, int width, int height)
+static float ms_ssim_plane(pixel *pix1, pixel *pix2, int width, int height, int scale = 5)
 {
-    int *temp;
     ssim_value value;
-    double result = 1.0;
-    int scale = 0;
-    double light_value[5];
+    float result = 1.0;
+    float luminance_value[5];
     int w = width;
     int h = height;
-    pixel *tmp_img1;
-    pixel *tmp_img2;
 
-    for (; scale < 5 && pow(2, scale) < width && pow(2, scale) < height; scale++)
+    int   *temp;
+    pixel *ori_img1;
+    pixel *ori_img2;
+    pixel *sample_img1;
+    pixel *sample_img2;
+
+    if (scale < 1 || scale > 5) 
     {
-        if (scale == 0)
-        {
-            tmp_img1 = new pixel[width * height];
-            tmp_img2 = new pixel[width * height];
-            for (int i = 0; i < width * height; i++)
-            {
-                tmp_img1[i] = pix1[i];
-                tmp_img2[i] = pix2[i];
-            }
-        }
-        else
-        {
-            tmp_img1 = down_sample(tmp_img1, h, w, scale);
-            tmp_img2 = down_sample(tmp_img2, h, w, scale);
-            h /= 2;
-            w /= 2;
-        }
-
-        temp = (int *)malloc((2 * w + 12) * sizeof(*temp));
-        value = ssim_plane(tmp_img1, w, tmp_img2, w, w, h, temp, NULL);
-        result *= pow(value.C_S, WEIGHT[scale]);
-        light_value[scale] = value.L;
+        scale = 5;
     }
 
-    result *= pow(light_value[scale - 1], WEIGHT[scale - 1]);
+    temp        = (int *)malloc((2*w+12)*sizeof(*temp));
+    ori_img1    = (pixel*)malloc(w * h * sizeof(pixel));
+    ori_img2    = (pixel*)malloc(w * h * sizeof(pixel));
+    sample_img1 = (pixel*)malloc(w * h * sizeof(pixel));
+    sample_img2 = (pixel*)malloc(w * h * sizeof(pixel));
+
+    for (int i = 0; i < w * h; i++) 
+    {
+        ori_img1[i] = pix1[i];
+        ori_img2[i] = pix2[i];
+    }
+
+    // 计算每个尺度的ssim值.
+    for (int i = 1; i <= scale; i++) 
+    {
+        if (i != 1) 
+        {
+            memset(sample_img1, 0, width * height);
+            memset(sample_img2, 0, width * height);
+
+            downsample_2x2_mean(ori_img1, w, h, sample_img1);
+            downsample_2x2_mean(ori_img2, w, h, sample_img2);
+
+            w = w >> 1;
+            h = h >> 1;
+
+            memset(ori_img1, 0, width * height);
+            memset(ori_img2, 0, width * height);
+
+            for (int j = 0; j < w * h; j++) 
+            {
+                ori_img1[j] = sample_img1[j];
+                ori_img2[j] = sample_img2[j];
+            }
+        }
+
+        value = ssim_plane(ori_img1, w, ori_img2, w, w, h, temp, NULL);
+        result *= pow(value.C_S, WEIGHT[i-1]);
+        luminance_value[i-1] = value.L;
+    }
+
+    free(temp);
+    free(ori_img1);
+    free(ori_img2);
+    free(sample_img1);
+    free(sample_img2);
+    temp = NULL;
+    ori_img1 = NULL;
+    ori_img2 = NULL;
+    sample_img1 = NULL;
+    sample_img2 = NULL;
+
+    result *= pow(luminance_value[scale-1], WEIGHT[scale-1]);
     return result;
 }
 
@@ -280,7 +286,7 @@ int main(int argc, char *argv[])
     FILE *f[2];
     uint8_t *buf[2], *plane[2][3];
     int *temp;
-    double ms_ssim[3] = {0, 0, 0};
+    float ms_ssim[3] = {0, 0, 0};
     int frame_size, w, h;
     int frames, seek;
     int i;
@@ -317,14 +323,14 @@ int main(int argc, char *argv[])
         plane[i][1] = plane[i][0] + w * h;
         plane[i][2] = plane[i][1] + w * h / 4;
     }
-    temp = (int *)malloc((2 * w + 12) * sizeof(*temp));
+
     seek = argc < 5 ? 0 : atoi(argv[4]);
     fseek(f[seek < 0], seek < 0 ? -seek : seek, SEEK_SET);
 
     // 逐帧计算
     for (frames = 0;; frames++)
     {
-        double ms_ssim_one[3]; // Y U V 三个向量一帧ms-ssim的结果
+        float ms_ssim_one[3]; // Y U V 三个向量一帧ms-ssim的结果
         // 分别读入这一帧Y向量的地址，随之也获得了UV向量的起始地址
         if (fread(buf[0], frame_size, 1, f[0]) != 1)
             break;
