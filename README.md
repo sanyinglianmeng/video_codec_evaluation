@@ -121,3 +121,19 @@ options:
   -r, --refVideo     原视频 (string)
   -?, --help         print this message
 ``` 
+
+## ssim
+𝑆𝑆𝐼𝑀算法基于HVS更适合从图像中提取结构信息的事实，并且利用结构相似度来计算图像的感知质量
+
+
+```shell
+$ ssim videoDB/t13.mp4 videoDB/t12.mp4 1280x720
+``` 
+
+## msssim
+多尺度的结构相似性评估算法
+
+
+```shell
+$ msssim videoDB/t13.mp4 videoDB/t12.mp4 1280x720
+``` 
