@@ -183,13 +183,22 @@ ssim_value ssim_plane(
     return ssim;
 }
 
-static void print_results(float ms_ssim[3], int frames, int w, int h)
+static void print_results(std::ofstream& msssim_log_f, float ms_ssim[3], int frames, int w, int h)
 {
     printf("MS-SSIM Y:%.5f U:%.5f V:%.5f All:%.5f",
            ms_ssim[0] / frames,
            ms_ssim[1] / frames,
            ms_ssim[2] / frames,
            (ms_ssim[0] * 4 + ms_ssim[1] + ms_ssim[2]) / (frames * 6));
+
+    msssim_log_f  << "n:" << frames + 1
+            << std::setiosflags(std::ios::fixed) << std::setprecision(2)
+            << " Y:"            << ms_ssim[0] / frames
+            << " U:"            << ms_ssim[1] / frames
+            << " V:"            << ms_ssim[2] / frames
+            << " All:"          << (ms_ssim[0]*4 + ms_ssim[1] + ms_ssim[2]) / (frames*6)
+            << std::endl;
+    std::cout << "\r\033[k"; // 清空命令行.
 }
 
 static void downsample_2x2_mean(pixel *input, int width, int height, pixel *output) 
@@ -338,6 +347,14 @@ int main(int argc, char *argv[])
     seek = argc < 5 ? 0 : atoi(argv[4]);
     fseek(f[seek < 0], seek < 0 ? -seek : seek, SEEK_SET);
 
+    // todo: 不写死了，从入参读
+    std::string msssim_log     = "ssimDir/msssim.log";
+    std::ofstream msssim_log_f(msssim_log, std::ios::out);
+    if(!msssim_log_f) {
+        std::cout << "打开文件: " << msssim_log << "失败!" << std::endl;
+        return false;
+    }
+
     // 逐帧计算
     for (frames = 0;; frames++)
     {
@@ -354,7 +371,7 @@ int main(int argc, char *argv[])
         }
 
         printf("Frame %d | ", frames);
-        print_results(ms_ssim_one, 1, w, h);
+        print_results(msssim_log_f, ms_ssim_one, frames, w, h);
         printf("                \r");
         fflush(stdout);
     }
@@ -362,8 +379,8 @@ int main(int argc, char *argv[])
     if (!frames)
         return 0;
 
-    printf("Total %d frames | ", frames);
-    print_results(ms_ssim, frames, w, h);
+    printf("Total: %d frames | ", frames);
+    print_results(msssim_log_f, ms_ssim, frames, w, h);
     printf("\n");
 
     return 0;

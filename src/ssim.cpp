@@ -167,19 +167,29 @@ static double ssim_db( double ssim, double weight )
     return 10*(log(weight)/log(10)-log(weight-ssim)/log(10));
 }
 
-static void print_results(uint64_t ssd[3], double ssim[3], int frames, int w, int h)
+static void print_results(std::ofstream& ssim_log_f, uint64_t ssd[3], double ssim[3], int frames, int w, int h)
 {
-    printf( "PSNR Y:%.3f  U:%.3f  V:%.3f  All:%.3f | ",
-            ssd_to_psnr( ssd[0], (uint64_t)frames*w*h ),
-            ssd_to_psnr( ssd[1], (uint64_t)frames*w*h/4 ),
-            ssd_to_psnr( ssd[2], (uint64_t)frames*w*h/4 ),
-            ssd_to_psnr( ssd[0] + ssd[1] + ssd[2], (uint64_t)frames*w*h*3/2 ) );
+    // printf( "PSNR Y:%.3f  U:%.3f  V:%.3f  All:%.3f | ",
+    //         ssd_to_psnr( ssd[0], (uint64_t)frames*w*h ),
+    //         ssd_to_psnr( ssd[1], (uint64_t)frames*w*h/4 ),
+    //         ssd_to_psnr( ssd[2], (uint64_t)frames*w*h/4 ),
+    //         ssd_to_psnr( ssd[0] + ssd[1] + ssd[2], (uint64_t)frames*w*h*3/2 ) );
     printf( "SSIM Y:%.5f U:%.5f V:%.5f All:%.5f (%.5f)",
             ssim[0] / frames,
             ssim[1] / frames,
             ssim[2] / frames,
             (ssim[0]*4 + ssim[1] + ssim[2]) / (frames*6),
             ssim_db(ssim[0] * 4 + ssim[1] + ssim[2], frames*6));
+
+    ssim_log_f  << "n:" << frames + 1
+                << std::setiosflags(std::ios::fixed) << std::setprecision(2)
+                << " Y:"            << ssim[0] / frames
+                << " U:"            << ssim[1] / frames
+                << " V:"            << ssim[2] / frames
+                << " All:"          << (ssim[0]*4 + ssim[1] + ssim[2]) / (frames*6)
+                << " ssim_db:"      << (ssim_db(ssim[0] * 4 + ssim[1] + ssim[2], frames*6))
+                << std::endl;
+    std::cout << "\r\033[k"; // 清空命令行.
 }
 
 int main(int argc, char* argv[])
@@ -230,6 +240,14 @@ int main(int argc, char* argv[])
     seek = argc<5 ? 0 : atoi(argv[4]);
     fseek(f[seek<0], seek < 0 ? -seek : seek, SEEK_SET);
 
+    // todo: 不写死了，从入参读
+    std::string ssim_log     = "ssimDir/ssim.log";
+    std::ofstream ssim_log_f(ssim_log, std::ios::out);
+    if(!ssim_log_f) {
+        std::cout << "打开文件: " << ssim_log << "失败!" << std::endl;
+        return false;
+    }
+
     for( frames=0;; frames++ )
     {
         uint64_t ssd_one[3];
@@ -246,16 +264,17 @@ int main(int argc, char* argv[])
             ssim[i] += ssim_one[i];
         }
 
-        printf("Frame %d | ", frames);
-        print_results(ssd_one, ssim_one, 1, w, h);
+        printf("Frame: %d | ", frames);
+        print_results(ssim_log_f, ssd_one, ssim_one, 1, w, h);
         printf("                \r");
         fflush(stdout);
     }
 
-    if( !frames ) return 0;
+    if(!frames) 
+        return 0;
 
-    printf("Total %d frames | ", frames);
-    print_results(ssd, ssim, frames, w, h);
+    printf("Total: %d frames | ", frames);
+    print_results(ssim_log_f, ssd, ssim, frames, w, h);
     printf("\n");
 
     return 0;

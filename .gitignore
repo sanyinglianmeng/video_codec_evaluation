@@ -36,8 +36,7 @@
 vpsnr
 checkdropframe
 get_frame_seq
-ssim
-msssim
+ssimDir
 
 # Compilation output for test
 test_httprequest
@@ -54,6 +53,8 @@ data/*
 videoDB/*
 videoAfter/*
 psnr/*
+ssim/*
+msssim/*
 conf/ocr.yaml
 
 *.avi
