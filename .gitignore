@@ -37,7 +37,7 @@ vpsnr
 checkdropframe
 get_frame_seq
 ssim
-msssime
+msssim
 
 # Compilation output for test
 test_httprequest
