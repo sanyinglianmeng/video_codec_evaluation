@@ -5,7 +5,7 @@ include third_party/Makefile
 include libs/Makefile
 
 # 底层增加，删除后请在此修改，顶层不用修改
-DSTSUB=get_frame_seq vpsnr checkdropframe
+DSTSUB=get_frame_seq vpsnr checkdropframe ssim msssim
 
 # 顶层调用的入口
 dst-all-sub: $(DSTSUB)
@@ -18,6 +18,12 @@ vpsnr: $(SRCDIR)/vpsnr.o $(LIBOBJ)
 
 checkdropframe: $(SRCDIR)/check_dropframe.o $(LIBOBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
+
+ssim: $(SRCDIR)/ssim.o $(LIBOBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
+
+msssim: $(SRCDIR)/msssim.o $(LIBOBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)	
 
 # build.
 $(SRCDIR)/get_frame_seq.o: 
@@ -44,4 +50,9 @@ $(SRCDIR)/psnr.o:
 $(SRCDIR)/vpsnr.o: 
 	$(CXX) $(CXXFLAGS) -c -o $(SRCDIR)/vpsnr.o $(SRCDIR)/vpsnr.cpp $(INCLUDES)
 
+$(SRCDIR)/ssim.o:
+	$(CXX) $(CXXFLAGS) -c -o $(SRCDIR)/ssim.o $(SRCDIR)/ssim.cpp $(INCLUDES)
+
+$(SRCDIR)/msssim.o:
+	$(CXX) $(CXXFLAGS) -c -o $(SRCDIR)/msssim.o $(SRCDIR)/msssim.cpp $(INCLUDES)
 endif
