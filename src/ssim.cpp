@@ -34,12 +34,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "psnr.h"
+
 #define FFSWAP(type,a,b) do{type SWAP_tmp= b; b= a; a= SWAP_tmp;}while(0)
 #define FFMIN(a,b) ((a) > (b) ? (b) : (a))
 
 #define BIT_DEPTH 8
 #define PIXEL_MAX ((1 << BIT_DEPTH)-1)
 typedef uint8_t  pixel;
+
 
 /****************************************************************************
  * structural similarity metric
@@ -190,14 +193,24 @@ int main(int argc, char* argv[])
     int frames, seek;
     int i;
 
+    // todo: 用cmdlineutils来整，把工具都挪到src/utils/里再整这个
     if( argc<4 || 2 != sscanf(argv[3], "%dx%d", &w, &h) )
     {
-        printf("tiny_ssim <file1.yuv> <file2.yuv> <width>x<height> [<seek>]\n");
+        printf("tiny_ssim <file1.yuv> <file2.yuv> <width>x<height>\n");
         return -1;
     }
 
-    f[0] = fopen(argv[1], "rb");
-    f[1] = fopen(argv[2], "rb");
+    // todo: 根据文件后缀来判断是否要转
+    std::string yuv0 = "";
+    std::string yuv1 = "";
+    if (!mp42yuv(argv[1], yuv0) || !mp42yuv(argv[2], yuv1)) {
+        std::cout << "生成yuv文件错误." << std::endl;
+        return 0;
+    }
+
+    // 指向转换后的yuv文件
+    f[0] = fopen(yuv0.c_str(), "rb");
+    f[1] = fopen(yuv1.c_str(), "rb");
     sscanf(argv[3], "%dx%d", &w, &h);
 
     if (w<=0 || h<=0 || w*(int64_t)h >= INT_MAX/3 || 2LL*w+12 >= INT_MAX / sizeof(*temp)) {

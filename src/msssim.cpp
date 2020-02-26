@@ -35,6 +35,9 @@
 #include <stdlib.h>
 #include <cstring>
 
+#include "psnr.h"
+
+
 #define FFSWAP(type, a, b) \
     do                     \
     {                      \
@@ -298,9 +301,17 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    // todo: 根据文件后缀来判断是否要转
+    std::string yuv0 = "";
+    std::string yuv1 = "";
+    if (!mp42yuv(argv[1], yuv0) || !mp42yuv(argv[2], yuv1)) {
+        std::cout << "生成yuv文件错误." << std::endl;
+        return 0;
+    }
+
     // 读入两个文件 长x宽
-    f[0] = fopen(argv[1], "rb");
-    f[1] = fopen(argv[2], "rb");
+    f[0] = fopen(yuv0.c_str(), "rb");
+    f[1] = fopen(yuv1.c_str(), "rb");
     sscanf(argv[3], "%dx%d", &w, &h);
 
     if (w <= 0 || h <= 0 || w * (int64_t)h >= INT_MAX / 3 || 2LL * w + 12 >= INT_MAX / sizeof(*temp))

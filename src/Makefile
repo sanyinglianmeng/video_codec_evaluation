@@ -5,7 +5,7 @@ include third_party/Makefile
 include libs/Makefile
 
 # 底层增加，删除后请在此修改，顶层不用修改
-DSTSUB=get_frame_seq vpsnr checkdropframe ssim msssim
+DSTSUB=get_frame_seq checkdropframe ssim msssim
 
 # 顶层调用的入口
 dst-all-sub: $(DSTSUB)

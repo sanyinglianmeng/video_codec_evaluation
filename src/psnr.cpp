@@ -385,7 +385,7 @@ bool psnrAndVisualize(const std::string &main_video, const std::string &ref_vide
         
         // 对齐之后进行计算.
         if (1 != fread(b1, frame_bytes, 1, f1) || 1 != fread(b2, frame_bytes, 1, f2)) {
-            std::cout << std::endl << "...at least one file pointer get the end!" << std::endl;
+            std::cout << std::endl << "...正在计算最后一帧...\n...at least one file pointer get the end!" << std::endl;
             break; 
         }
 
@@ -440,7 +440,7 @@ bool mp42yuv(const std::string &mp4, std::string &yuv) {
     std::string resDir = conf["psnr"]["resDir"].as<std::string>();
     if (!isDirExist(resDir)) {
         if (mkdir(resDir.c_str(), S_IRWXU) != 0 ) {
-            std::cout << "create  " << resDir  << " failed..." << std::endl;
+            std::cout << "创建  " << resDir  << " 失败..." << std::endl;
             return false;
         }
     }
