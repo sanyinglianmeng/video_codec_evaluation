@@ -5,5 +5,5 @@ ifndef LIBOBJ
              $(SRCDIR)/conf.o \
              $(SRCDIR)/ocr.o \
              $(SRCDIR)/frame_drop_detect.o \
-		     $(SRCDIR)/psnr.o
+             $(SRCDIR)/psnr.o
 endif
