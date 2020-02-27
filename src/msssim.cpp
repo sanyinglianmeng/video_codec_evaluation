@@ -192,7 +192,7 @@ static void print_results(std::ofstream& msssim_log_f, float ms_ssim[3], int fra
            (ms_ssim[0] * 4 + ms_ssim[1] + ms_ssim[2]) / (frames * 6));
 
     msssim_log_f  << "n:" << frame_index + 1
-            << std::setiosflags(std::ios::fixed) << std::setprecision(2)
+            << std::setiosflags(std::ios::fixed) << std::setprecision(5)
             << " Y:"            << ms_ssim[0] / frames
             << " U:"            << ms_ssim[1] / frames
             << " V:"            << ms_ssim[2] / frames

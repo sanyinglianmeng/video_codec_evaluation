@@ -182,7 +182,7 @@ static void print_results(std::ofstream& ssim_log_f, uint64_t ssd[3], double ssi
             ssim_db(ssim[0] * 4 + ssim[1] + ssim[2], frames*6));
 
     ssim_log_f  << "n:" << frame_index + 1
-                << std::setiosflags(std::ios::fixed) << std::setprecision(2)
+                << std::setiosflags(std::ios::fixed) << std::setprecision(5)
                 << " Y:"            << ssim[0] / frames
                 << " U:"            << ssim[1] / frames
                 << " V:"            << ssim[2] / frames

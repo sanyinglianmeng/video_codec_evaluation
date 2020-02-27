@@ -86,7 +86,8 @@ def ssim_graph(res, dir):
     ax=plt.gca()
     ax.xaxis.set_major_locator(xmajorLocator)
     ax.yaxis.set_major_locator(ymajorLocator)
-    plt.ylim(0,10)
+    # todo 根据y轴峰峰值做动态调整
+    plt.ylim(0.9,1)
   
     
     plt.grid(True)
