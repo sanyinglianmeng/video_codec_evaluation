@@ -167,7 +167,7 @@ static double ssim_db( double ssim, double weight )
     return 10*(log(weight)/log(10)-log(weight-ssim)/log(10));
 }
 
-static void print_results(std::ofstream& ssim_log_f, uint64_t ssd[3], double ssim[3], int frames, int w, int h)
+static void print_results(std::ofstream& ssim_log_f, uint64_t ssd[3], double ssim[3], int frames, int w, int h, int frame_index)
 {
     // printf( "PSNR Y:%.3f  U:%.3f  V:%.3f  All:%.3f | ",
     //         ssd_to_psnr( ssd[0], (uint64_t)frames*w*h ),
@@ -181,7 +181,7 @@ static void print_results(std::ofstream& ssim_log_f, uint64_t ssd[3], double ssi
             (ssim[0]*4 + ssim[1] + ssim[2]) / (frames*6),
             ssim_db(ssim[0] * 4 + ssim[1] + ssim[2], frames*6));
 
-    ssim_log_f  << "n:" << frames + 1
+    ssim_log_f  << "n:" << frame_index + 1
                 << std::setiosflags(std::ios::fixed) << std::setprecision(2)
                 << " Y:"            << ssim[0] / frames
                 << " U:"            << ssim[1] / frames
@@ -190,6 +190,77 @@ static void print_results(std::ofstream& ssim_log_f, uint64_t ssd[3], double ssi
                 << " ssim_db:"      << (ssim_db(ssim[0] * 4 + ssim[1] + ssim[2], frames*6))
                 << std::endl;
     std::cout << "\r\033[k"; // 清空命令行.
+}
+
+bool ssimVisualize(const std::string &ssimlog) {
+	Py_Initialize();    //初始化
+
+    #ifdef DEBUG
+    std::cout << "......为了ssim能够正确生成时间维度的分析图，请检查ssim和python在同级目录下." << std::endl;
+    #endif
+
+	std::string path    = "python";
+	std::string cmd_dir = std::string("sys.path.append(\"" + path + "\")");
+    std::string cmd_dir1= std::string("sys.path.append(\"bin/" + path + "\")");	
+	std::string ssim_dir = ssimlog.substr(0, ssimlog.find_last_of('/'));
+
+    PyRun_SimpleString("import sys");
+    PyRun_SimpleString("import os");
+    PyRun_SimpleString(cmd_dir.c_str());
+    PyRun_SimpleString(cmd_dir1.c_str());
+
+    // 加载模块
+    PyObject* moduleName = PyUnicode_FromString("ssim_graph_Py3");
+    PyObject* pModule = PyImport_Import(moduleName);
+    if (!pModule) {
+        std::cout << "Python get module [ssim_graph-Py3] failed." << std::endl;
+        return false;
+    }
+
+    #ifdef DEBUG
+    std::cout << "Python get module [ssim_graph-Py3] succeed." <<std::endl;
+    #endif
+
+    // 加载函数
+    PyObject* pv = PyObject_GetAttrString(pModule, "get_ssim_graph");
+    if (!pv || !PyCallable_Check(pv)) {
+        std::cout << "Can't find funftion [get_ssim_graph]" << std::endl;
+        return false;
+    }
+
+    #ifdef DEBUG
+    std::cout << "Python get function [get_ssim_graph] succeed." << std::endl;
+    #endif
+
+    // 设置参数
+    PyObject* args = PyTuple_New(2); 
+    PyObject* arg1 = Py_BuildValue("s", ssimlog.c_str());    
+    PyObject* arg2 = Py_BuildValue("s", ssim_dir.c_str());
+    PyTuple_SetItem(args, 0, arg1);
+    PyTuple_SetItem(args, 1, arg2);
+
+    #ifdef DEBUG    
+    std::cout << "第一个参数：" << psnrlog << std::endl;
+    std::cout << "第二个参数：" << psnrlog_dir << std::endl;
+    #endif
+
+    // 调用函数
+    PyObject* pRet = PyObject_CallObject(pv, args);
+    if (pRet) {
+    	#ifdef DEBUG
+        long result = PyLong_AsLong(pRet);
+        std::cout << "result:" << result << std::endl;
+        #endif
+
+        std::cout << "...ssim帧维度可视化执行成功" << std::endl;
+        #ifdef DEBUG
+        std::cout << "..." << ssimlog << "<===>" << psnrlog_dir << "/ssim.png" << std::endl; 
+        #endif 
+    }
+
+    Py_Finalize();      //释放资源
+
+    return true;
 }
 
 int main(int argc, char* argv[])
@@ -241,7 +312,7 @@ int main(int argc, char* argv[])
     fseek(f[seek<0], seek < 0 ? -seek : seek, SEEK_SET);
 
     // todo: 不写死了，从入参读
-    std::string ssim_log     = "ssimDir/ssim.log";
+    std::string ssim_log = "ssimDir/ssim.log";
     std::ofstream ssim_log_f(ssim_log, std::ios::out);
     if(!ssim_log_f) {
         std::cout << "打开文件: " << ssim_log << "失败!" << std::endl;
@@ -265,7 +336,7 @@ int main(int argc, char* argv[])
         }
 
         printf("Frame: %d | ", frames);
-        print_results(ssim_log_f, ssd_one, ssim_one, 1, w, h);
+        print_results(ssim_log_f, ssd_one, ssim_one, 1, w, h, frames);
         printf("                \r");
         fflush(stdout);
     }
@@ -274,8 +345,10 @@ int main(int argc, char* argv[])
         return 0;
 
     printf("Total: %d frames | ", frames);
-    print_results(ssim_log_f, ssd, ssim, frames, w, h);
+    print_results(ssim_log_f, ssd, ssim, frames, w, h, frames);
     printf("\n");
+
+    ssimVisualize(ssim_log);
 
     return 0;
 }

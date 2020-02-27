@@ -183,7 +183,7 @@ ssim_value ssim_plane(
     return ssim;
 }
 
-static void print_results(std::ofstream& msssim_log_f, float ms_ssim[3], int frames, int w, int h)
+static void print_results(std::ofstream& msssim_log_f, float ms_ssim[3], int frames, int w, int h, int frame_index)
 {
     printf("MS-SSIM Y:%.5f U:%.5f V:%.5f All:%.5f",
            ms_ssim[0] / frames,
@@ -191,7 +191,7 @@ static void print_results(std::ofstream& msssim_log_f, float ms_ssim[3], int fra
            ms_ssim[2] / frames,
            (ms_ssim[0] * 4 + ms_ssim[1] + ms_ssim[2]) / (frames * 6));
 
-    msssim_log_f  << "n:" << frames + 1
+    msssim_log_f  << "n:" << frame_index + 1
             << std::setiosflags(std::ios::fixed) << std::setprecision(2)
             << " Y:"            << ms_ssim[0] / frames
             << " U:"            << ms_ssim[1] / frames
@@ -371,7 +371,7 @@ int main(int argc, char *argv[])
         }
 
         printf("Frame %d | ", frames);
-        print_results(msssim_log_f, ms_ssim_one, frames, w, h);
+        print_results(msssim_log_f, ms_ssim_one, 1, w, h, frames);
         printf("                \r");
         fflush(stdout);
     }
@@ -380,7 +380,7 @@ int main(int argc, char *argv[])
         return 0;
 
     printf("Total: %d frames | ", frames);
-    print_results(msssim_log_f, ms_ssim, frames, w, h);
+    print_results(msssim_log_f, ms_ssim, frames, w, h, frames);
     printf("\n");
 
     return 0;
