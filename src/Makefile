@@ -38,14 +38,14 @@ $(SRCDIR)/matrixutils.o:
 $(SRCDIR)/conf.o: 
 	$(CXX) $(CXXFLAGS) -c -o $(SRCDIR)/conf.o $(SRCDIR)/conf.cpp $(INCLUDES)
 
-$(SRCDIR)/ocr.o: 
-	$(CXX) $(CXXFLAGS) -c -o $(SRCDIR)/ocr.o $(SRCDIR)/ocr.cpp $(INCLUDES)
+$(SRCDIR)/ocrlib.o: 
+	$(CXX) $(CXXFLAGS) -c -o $(SRCDIR)/ocrlib.o $(SRCDIR)/ocrlib.cpp $(INCLUDES)
 
 $(SRCDIR)/frame_drop_detect.o: 
 	$(CXX) $(CXXFLAGS) -c -o $(SRCDIR)/frame_drop_detect.o $(SRCDIR)/frame_drop_detect.cpp $(INCLUDES)
 
-$(SRCDIR)/psnr.o: 
-	$(CXX) $(CXXFLAGS) -c -o $(SRCDIR)/psnr.o $(SRCDIR)/psnr.cpp $(INCLUDES)
+$(SRCDIR)/psnrlib.o: 
+	$(CXX) $(CXXFLAGS) -c -o $(SRCDIR)/psnrlib.o $(SRCDIR)/psnrlib.cpp $(INCLUDES)
 
 $(SRCDIR)/vpsnr.o: 
 	$(CXX) $(CXXFLAGS) -c -o $(SRCDIR)/vpsnr.o $(SRCDIR)/vpsnr.cpp $(INCLUDES)

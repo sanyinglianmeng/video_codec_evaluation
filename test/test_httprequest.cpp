@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <stdio.h>
 
-#include "../src/ocr.h"
+#include "../src/ocrlib.h"
 #include "../src/cmdlineutils.h"
 #include "../src/matrixutils.h"
 #include "../src/frame_drop_detect.h"

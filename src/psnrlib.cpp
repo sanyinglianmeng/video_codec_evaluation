@@ -1,4 +1,4 @@
-#include "psnr.h"
+#include "psnrlib.h"
 
 unsigned pow2(unsigned base) {
     return base*base;

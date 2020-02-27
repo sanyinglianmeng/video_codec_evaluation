@@ -1,5 +1,5 @@
-#ifndef OCR_H_
-#define OCR_H_
+#ifndef OCRLIB_H_
+#define OCRLIB_H_
 
 #include <iostream>
 #include <string>

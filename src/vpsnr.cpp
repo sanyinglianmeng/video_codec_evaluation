@@ -19,7 +19,7 @@
 
 #include "frame_drop_detect.h"
 #include "matrixutils.h"
-#include "psnr.h"
+#include "psnrlib.h"
 
 int main(int argc, char *argv[]) {
 	// 解析命令行参数.

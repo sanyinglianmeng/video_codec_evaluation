@@ -3,7 +3,7 @@ ifndef LIBOBJ
     LIBOBJ = $(SRCDIR)/cmdlineutils.o \
              $(SRCDIR)/matrixutils.o \
              $(SRCDIR)/conf.o \
-             $(SRCDIR)/ocr.o \
+             $(SRCDIR)/ocrlib.o \
              $(SRCDIR)/frame_drop_detect.o \
-             $(SRCDIR)/psnr.o
+             $(SRCDIR)/psnrlib.o
 endif

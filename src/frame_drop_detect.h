@@ -18,7 +18,7 @@
 #include "conf.h"
 #include "cmdlineutils.h"
 #include "matrixutils.h"
-#include "ocr.h"
+#include "ocrlib.h"
 
 enum EPixFormat {
 	YUV444     = 1,

@@ -18,7 +18,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "../src/frame_drop_detect.h"
-#include "../src/psnr.h"
+#include "../src/psnrlib.h"
 #include "../src/matrixutils.h"
 
 int main(int argc, char *argv[]) {

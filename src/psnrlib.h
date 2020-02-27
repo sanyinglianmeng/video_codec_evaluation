@@ -1,5 +1,5 @@
-#ifndef PSNR_H_
-#define PSNR_H_
+#ifndef PSNRLIB_H_
+#define PSNRLIB_H_
 
 #include <iostream>
 #include <vector>
