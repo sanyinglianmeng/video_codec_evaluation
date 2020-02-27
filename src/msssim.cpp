@@ -218,6 +218,77 @@ static void downsample_2x2_mean(pixel *input, int width, int height, pixel *outp
     }
 }
 
+bool msssimVisualize(const std::string &ssimlog) {
+	Py_Initialize();    //初始化
+
+    #ifdef DEBUG
+    std::cout << "......为了ssim能够正确生成时间维度的分析图，请检查ssim和python在同级目录下." << std::endl;
+    #endif
+
+	std::string path    = "python";
+	std::string cmd_dir = std::string("sys.path.append(\"" + path + "\")");
+    std::string cmd_dir1= std::string("sys.path.append(\"bin/" + path + "\")");	
+	std::string ssim_dir = ssimlog.substr(0, ssimlog.find_last_of('/'));
+
+    PyRun_SimpleString("import sys");
+    PyRun_SimpleString("import os");
+    PyRun_SimpleString(cmd_dir.c_str());
+    PyRun_SimpleString(cmd_dir1.c_str());
+
+    // 加载模块
+    PyObject* moduleName = PyUnicode_FromString("msssim_graph_Py3");
+    PyObject* pModule = PyImport_Import(moduleName);
+    if (!pModule) {
+        std::cout << "Python get module [msssim_graph_Py3] failed." << std::endl;
+        return false;
+    }
+
+    #ifdef DEBUG
+    std::cout << "Python get module [msssim_graph_Py3] succeed." <<std::endl;
+    #endif
+
+    // 加载函数
+    PyObject* pv = PyObject_GetAttrString(pModule, "get_ssim_graph");
+    if (!pv || !PyCallable_Check(pv)) {
+        std::cout << "Can't find funftion [get_ssim_graph]" << std::endl;
+        return false;
+    }
+
+    #ifdef DEBUG
+    std::cout << "Python get function [get_ssim_graph] succeed." << std::endl;
+    #endif
+
+    // 设置参数
+    PyObject* args = PyTuple_New(2); 
+    PyObject* arg1 = Py_BuildValue("s", ssimlog.c_str());    
+    PyObject* arg2 = Py_BuildValue("s", ssim_dir.c_str());
+    PyTuple_SetItem(args, 0, arg1);
+    PyTuple_SetItem(args, 1, arg2);
+
+    #ifdef DEBUG    
+    std::cout << "第一个参数：" << ssimlog << std::endl;
+    std::cout << "第二个参数：" << ssim_dir << std::endl;
+    #endif
+
+    // 调用函数
+    PyObject* pRet = PyObject_CallObject(pv, args);
+    if (pRet) {
+    	#ifdef DEBUG
+        long result = PyLong_AsLong(pRet);
+        std::cout << "result:" << result << std::endl;
+        #endif
+
+        std::cout << "...ssim帧维度可视化执行成功" << std::endl;
+        #ifdef DEBUG
+        std::cout << "..." << ssimlog << "<===>" << ssim_dir << "/ssim.png" << std::endl; 
+        #endif 
+    }
+
+    Py_Finalize();      //释放资源
+
+    return true;
+}
+
 static float ms_ssim_plane(pixel *pix1, pixel *pix2, int width, int height, int scale = 5)
 {
     ssim_value value;
@@ -382,6 +453,8 @@ int main(int argc, char *argv[])
     printf("Total: %d frames | ", frames);
     print_results(msssim_log_f, ms_ssim, frames, w, h, frames);
     printf("\n");
+
+    msssimVisualize(msssim_log);
 
     return 0;
 }

@@ -240,8 +240,8 @@ bool ssimVisualize(const std::string &ssimlog) {
     PyTuple_SetItem(args, 1, arg2);
 
     #ifdef DEBUG    
-    std::cout << "第一个参数：" << psnrlog << std::endl;
-    std::cout << "第二个参数：" << psnrlog_dir << std::endl;
+    std::cout << "第一个参数：" << ssimlog << std::endl;
+    std::cout << "第二个参数：" << ssim_dir << std::endl;
     #endif
 
     // 调用函数
@@ -254,7 +254,7 @@ bool ssimVisualize(const std::string &ssimlog) {
 
         std::cout << "...ssim帧维度可视化执行成功" << std::endl;
         #ifdef DEBUG
-        std::cout << "..." << ssimlog << "<===>" << psnrlog_dir << "/ssim.png" << std::endl; 
+        std::cout << "..." << ssimlog << "<===>" << ssim_dir << "/ssim.png" << std::endl; 
         #endif 
     }
 
