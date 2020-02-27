@@ -8,9 +8,9 @@
 #include <opencv2/opencv.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "conf.h"
+#include "conf/conf.h"
 #include "../third_party/cmdline.h"
-#include "cmdlineutils.h"
+#include "utils/cmdlineutils.h"
 
 cv::Rect getSubFrameRect(YAML::Node &conf, cv::Mat &frame, int oriWidth, int oriHeight) {
 	cv::Rect rect(0, 0, 0, 0);

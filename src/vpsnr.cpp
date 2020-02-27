@@ -18,8 +18,8 @@
 #include <boost/lexical_cast.hpp>
 
 #include "frame_drop_detect.h"
-#include "matrixutils.h"
-#include "psnrlib.h"
+#include "utils/matrixutils.h"
+#include "lib/psnrlib.h"
 
 int main(int argc, char *argv[]) {
 	// 解析命令行参数.

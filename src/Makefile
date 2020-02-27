@@ -32,20 +32,8 @@ $(SRCDIR)/get_frame_seq.o:
 $(SRCDIR)/check_dropframe.o: 
 	$(CXX) $(CXXFLAGS) -c -o $(SRCDIR)/check_dropframe.o $(SRCDIR)/check_dropframe.cpp $(INCLUDES)
 
-$(SRCDIR)/matrixutils.o: 
-	$(CXX) $(CXXFLAGS) -c -o $(SRCDIR)/matrixutils.o $(SRCDIR)/matrixutils.cpp $(INCLUDES)
-
-$(SRCDIR)/conf.o: 
-	$(CXX) $(CXXFLAGS) -c -o $(SRCDIR)/conf.o $(SRCDIR)/conf.cpp $(INCLUDES)
-
-$(SRCDIR)/ocrlib.o: 
-	$(CXX) $(CXXFLAGS) -c -o $(SRCDIR)/ocrlib.o $(SRCDIR)/ocrlib.cpp $(INCLUDES)
-
 $(SRCDIR)/frame_drop_detect.o: 
 	$(CXX) $(CXXFLAGS) -c -o $(SRCDIR)/frame_drop_detect.o $(SRCDIR)/frame_drop_detect.cpp $(INCLUDES)
-
-$(SRCDIR)/psnrlib.o: 
-	$(CXX) $(CXXFLAGS) -c -o $(SRCDIR)/psnrlib.o $(SRCDIR)/psnrlib.cpp $(INCLUDES)
 
 $(SRCDIR)/vpsnr.o: 
 	$(CXX) $(CXXFLAGS) -c -o $(SRCDIR)/vpsnr.o $(SRCDIR)/vpsnr.cpp $(INCLUDES)
@@ -55,4 +43,19 @@ $(SRCDIR)/ssim.o:
 
 $(SRCDIR)/msssim.o:
 	$(CXX) $(CXXFLAGS) -c -o $(SRCDIR)/msssim.o $(SRCDIR)/msssim.cpp $(INCLUDES)
+
+# src/lib/
+$(SRCLIBDIR)/ocrlib.o: 
+	$(CXX) $(CXXFLAGS) -c -o $(SRCLIBDIR)/ocrlib.o $(SRCLIBDIR)/ocrlib.cpp $(INCLUDES)
+
+$(SRCLIBDIR)/psnrlib.o: 
+	$(CXX) $(CXXFLAGS) -c -o $(SRCLIBDIR)/psnrlib.o $(SRCLIBDIR)/psnrlib.cpp $(INCLUDES)
+
+# src/conf/ 
+$(SRCCONFDIR)/conf.o: 
+	$(CXX) $(CXXFLAGS) -c -o $(SRCCONFDIR)/conf.o $(SRCCONFDIR)/conf.cpp $(INCLUDES)
+
+# src/utils/
+$(SRCUTILSDIR)/matrixutils.o: 
+	$(CXX) $(CXXFLAGS) -c -o $(SRCUTILSDIR)/matrixutils.o $(SRCUTILSDIR)/matrixutils.cpp $(INCLUDES)
 endif

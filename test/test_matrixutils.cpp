@@ -2,7 +2,7 @@
 #include <iomanip>
 #include <boost/lexical_cast.hpp>
 
-#include "../src/matrixutils.h"
+#include "../src/utils/matrixutils.h"
 
 void test_rotate270() {
 	std::cout << "test matrixutils tools" << std::endl;

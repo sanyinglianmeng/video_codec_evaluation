@@ -5,9 +5,9 @@
 #include <unistd.h>
 #include <stdio.h>
 
-#include "../src/ocrlib.h"
-#include "../src/cmdlineutils.h"
-#include "../src/matrixutils.h"
+#include "../src/lib/ocrlib.h"
+#include "../src/utils/cmdlineutils.h"
+#include "../src/utils/matrixutils.h"
 #include "../src/frame_drop_detect.h"
 
 int main(int argc, char *argv[]) {

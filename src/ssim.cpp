@@ -34,7 +34,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "psnrlib.h"
+#include "lib/psnrlib.h"
 
 #define FFSWAP(type,a,b) do{type SWAP_tmp= b; b= a; a= SWAP_tmp;}while(0)
 #define FFMIN(a,b) ((a) > (b) ? (b) : (a))

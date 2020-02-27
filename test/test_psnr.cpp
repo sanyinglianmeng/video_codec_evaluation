@@ -18,8 +18,8 @@
 #include <boost/lexical_cast.hpp>
 
 #include "../src/frame_drop_detect.h"
-#include "../src/psnrlib.h"
-#include "../src/matrixutils.h"
+#include "../src/lib/psnrlib.h"
+#include "../src/utils/matrixutils.h"
 
 int main(int argc, char *argv[]) {
     std::string f1 = "videoDB/t12.mp4";

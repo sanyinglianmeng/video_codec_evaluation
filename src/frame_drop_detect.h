@@ -15,10 +15,10 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include "conf.h"
-#include "cmdlineutils.h"
-#include "matrixutils.h"
-#include "ocrlib.h"
+#include "conf/conf.h"
+#include "utils/cmdlineutils.h"
+#include "utils/matrixutils.h"
+#include "lib/ocrlib.h"
 
 enum EPixFormat {
 	YUV444     = 1,

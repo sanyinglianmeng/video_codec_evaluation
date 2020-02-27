@@ -1,5 +1,4 @@
 #include "ocrlib.h"
-#include "conf.h"
 
 bool Base64Encode(const std::string &input, std::string &output) {
     std::stringstream result;

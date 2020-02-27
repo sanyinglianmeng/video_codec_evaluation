@@ -22,10 +22,10 @@
 #include <boost/lexical_cast.hpp>
 #include <Python.h>
 
-#include "cmdlineutils.h"
-#include "conf.h"
-#include "frame_drop_detect.h"
-#include "matrixutils.h"
+#include "../utils/cmdlineutils.h"
+#include "../conf/conf.h"
+#include "../frame_drop_detect.h"
+#include "../utils/matrixutils.h"
 
 extern "C" {
   #include "libavcodec/avcodec.h"

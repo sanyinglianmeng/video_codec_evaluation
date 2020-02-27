@@ -35,7 +35,7 @@
 #include <stdlib.h>
 #include <cstring>
 
-#include "psnrlib.h"
+#include "lib/psnrlib.h"
 
 
 #define FFSWAP(type, a, b) \

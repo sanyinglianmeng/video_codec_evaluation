@@ -18,11 +18,11 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include "../third_party/http_request.hpp"
-
-#include "../third_party/rapidjson/document.h"
-#include "../third_party/rapidjson/writer.h"
-#include "../third_party/rapidjson/stringbuffer.h"
+#include "../conf/conf.h"
+#include "../../third_party/http_request.hpp"
+#include "../../third_party/rapidjson/document.h"
+#include "../../third_party/rapidjson/writer.h"
+#include "../../third_party/rapidjson/stringbuffer.h"
 
 typedef boost::archive::iterators::base64_from_binary<boost::archive::iterators::transform_width<std::string::const_iterator, 6, 8>> Base64EncodeIterator;
 

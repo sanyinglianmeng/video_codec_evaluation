@@ -45,6 +45,18 @@ ifndef SRCDIR
     SRCDIR=src
 endif
 
+ifndef SRCLIBDIR
+    SRCLIBDIR=src/lib
+endif
+
+ifndef SRCCONFDIR
+    SRCCONFDIR=src/conf
+endif
+
+ifndef SRCUTILSDIR
+    SRCUTILSDIR=src/utils
+endif
+
 ifndef TESTDIR
     TESTDIR=test
 endif
@@ -81,7 +93,10 @@ install:
 
 .PHONY : clean
 clean:
-	-rm -rf $(SRCDIR)/*.o $(TESTDIR)/*.o $(DSTSUB) $(TESTSUB) $(OUTPUTDIR)
+	-rm -rf $(SRCDIR)/*.o $(SRCCONFDIR)/*.o $(SRCLIBDIR)/*.o $(SRCUTILSDIR)/*.o $(TESTDIR)/*.o \
+    -rm -rf $(DSTSUB) \
+    -rm -rf $(TESTSUB) \
+    -rm -rf $(OUTPUTDIR)
 
 .PHONY : clean_data
 clean_data:

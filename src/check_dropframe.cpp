@@ -18,8 +18,8 @@
 #include <boost/lexical_cast.hpp>
 
 #include "frame_drop_detect.h"
-#include "matrixutils.h"
-#include "psnrlib.h"
+#include "utils/matrixutils.h"
+#include "lib/psnrlib.h"
 
 int main(int argc, char *argv[]) {
 	cmdline::parser cmdPara = checkDropFrameCmdLine(argc, argv);
