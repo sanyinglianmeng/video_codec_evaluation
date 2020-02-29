@@ -127,7 +127,7 @@ options:
 
 
 ```shell
-$ ssim videoDB/t13.mp4 videoDB/t12.mp4 1280x720
+$ ssim videoDB/t13.mp4 videoDB/t12.mp4
 ``` 
 
 ## msssim
@@ -135,5 +135,5 @@ $ ssim videoDB/t13.mp4 videoDB/t12.mp4 1280x720
 
 
 ```shell
-$ msssim videoDB/t13.mp4 videoDB/t12.mp4 1280x720
+$ msssim videoDB/t13.mp4 videoDB/t12.mp4
 ``` 

@@ -33,6 +33,9 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <opencv2/opencv.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 #include "lib/psnrlib.h"
 
@@ -263,6 +266,26 @@ bool ssimVisualize(const std::string &ssimlog) {
     return true;
 }
 
+static int get_video_info(const std::string& video, int& w, int& h){
+    cv::VideoCapture capture;
+    capture.open("/Users/liuyizhuo/Desktop/t12.mp4");
+    if (!capture.isOpened()) {
+        printf("不能读取视频文件！\n");
+        return -1;
+    }
+    cv::Size s = cv::Size((int)capture.get(cv::CAP_PROP_FRAME_WIDTH), (int)capture.get(cv::CAP_PROP_FRAME_HEIGHT));
+    w = s.width;
+    h = s.height;
+
+    #ifdef DEBUG
+    std::cout << s.width << std::endl;
+    std::cout << s.height << std::endl;
+    #endif
+
+    capture.release();
+    return 0;
+}
+
 int main(int argc, char* argv[])
 {
     FILE *f[2];
@@ -270,14 +293,26 @@ int main(int argc, char* argv[])
     int *temp;
     uint64_t ssd[3] = {0,0,0};
     double ssim[3] = {0,0,0};
-    int frame_size, w, h;
+    int frame_size, w1, h1, w2, h2;
     int frames, seek;
     int i;
 
     // todo: 用cmdlineutils来整，把工具都挪到src/utils/里再整这个
-    if( argc<4 || 2 != sscanf(argv[3], "%dx%d", &w, &h) )
+    if( argc<3)
     {
-        printf("tiny_ssim <file1.yuv> <file2.yuv> <width>x<height>\n");
+        printf("ssim <file1.mp4> <file2.mp4> \n");
+        return -1;
+    }
+
+    w1 = 0;
+    h1 = 0;
+    w2 = 0;
+    h2 = 0;
+    int res01 = get_video_info(argv[1], w1, h1);
+    int res02 = get_video_info(argv[2], w2, h2);
+    
+    if(res01 != 0 || res02 != 0 || w1 != w2 || h1 != h2){
+        std::cout << "file1.mp4 file2.mp4 have different size, exiting..." << std::endl;
         return -1;
     }
 
@@ -292,22 +327,21 @@ int main(int argc, char* argv[])
     // 指向转换后的yuv文件
     f[0] = fopen(yuv0.c_str(), "rb");
     f[1] = fopen(yuv1.c_str(), "rb");
-    sscanf(argv[3], "%dx%d", &w, &h);
 
-    if (w<=0 || h<=0 || w*(int64_t)h >= INT_MAX/3 || 2LL*w+12 >= INT_MAX / sizeof(*temp)) {
+    if (w1<=0 || h1<=0 || w1*(int64_t)h1 >= INT_MAX/3 || 2LL*w1+12 >= INT_MAX / sizeof(*temp)) {
         fprintf(stderr, "Dimensions are too large, or invalid\n");
         return -2;
     }
 
-    frame_size = w*h*3LL/2;
+    frame_size = w1*h1*3LL/2;
     for( i=0; i<2; i++ )
     {
         buf[i] = (uint8_t *)malloc(frame_size);
         plane[i][0] = buf[i];
-        plane[i][1] = plane[i][0] + w*h;
-        plane[i][2] = plane[i][1] + w*h/4;
+        plane[i][1] = plane[i][0] + w1*h1;
+        plane[i][2] = plane[i][1] + w1*h1/4;
     }
-    temp = (int *)malloc((2*w+12)*sizeof(*temp));
+    temp = (int *)malloc((2*w1+12)*sizeof(*temp));
     seek = argc<5 ? 0 : atoi(argv[4]);
     fseek(f[seek<0], seek < 0 ? -seek : seek, SEEK_SET);
 
@@ -327,16 +361,16 @@ int main(int argc, char* argv[])
         if( fread(buf[1], frame_size, 1, f[1]) != 1) break;
         for( i=0; i<3; i++ )
         {
-            ssd_one[i]  = ssd_plane ( plane[0][i], plane[1][i], w*h>>2*!!i );
-            ssim_one[i] = ssim_plane( plane[0][i], w>>!!i,
-                                     plane[1][i], w>>!!i,
-                                     w>>!!i, h>>!!i, temp, NULL );
+            ssd_one[i]  = ssd_plane ( plane[0][i], plane[1][i], w1*h1>>2*!!i );
+            ssim_one[i] = ssim_plane( plane[0][i], w1>>!!i,
+                                     plane[1][i], w1>>!!i,
+                                     w1>>!!i, h1>>!!i, temp, NULL );
             ssd[i] += ssd_one[i];
             ssim[i] += ssim_one[i];
         }
 
         printf("Frame: %d | ", frames);
-        print_results(ssim_log_f, ssd_one, ssim_one, 1, w, h, frames);
+        print_results(ssim_log_f, ssd_one, ssim_one, 1, w1, h1, frames);
         printf("                \r");
         fflush(stdout);
     }
@@ -345,7 +379,7 @@ int main(int argc, char* argv[])
         return 0;
 
     printf("Total: %d frames | ", frames);
-    print_results(ssim_log_f, ssd, ssim, frames, w, h, frames);
+    print_results(ssim_log_f, ssd, ssim, frames, w1, h1, frames);
     printf("\n");
 
     ssimVisualize(ssim_log);
