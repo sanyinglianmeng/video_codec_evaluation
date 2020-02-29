@@ -270,7 +270,7 @@ static int get_video_info(const std::string& video, int& w, int& h){
     cv::VideoCapture capture;
     capture.open(video);
     if (!capture.isOpened()) {
-        printf("不能读取视频文件！\n");
+        std::cout << video << "readin failed, please check it..！\n" << std::endl;
         return -1;
     }
     cv::Size s = cv::Size((int)capture.get(cv::CAP_PROP_FRAME_WIDTH), (int)capture.get(cv::CAP_PROP_FRAME_HEIGHT));
