@@ -268,7 +268,7 @@ bool ssimVisualize(const std::string &ssimlog) {
 
 static int get_video_info(const std::string& video, int& w, int& h){
     cv::VideoCapture capture;
-    capture.open("/Users/liuyizhuo/Desktop/t12.mp4");
+    capture.open(video);
     if (!capture.isOpened()) {
         printf("不能读取视频文件！\n");
         return -1;
