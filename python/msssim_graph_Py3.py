@@ -63,6 +63,25 @@ def ssim_graph(res, dir):
     ssim_v_list   = res[4]
     ssim_all_list = res[1]
 
+    y_all = []
+    y_all.extend(ssim_y_list)
+    y_all.extend(ssim_u_list)
+    y_all.extend(ssim_v_list)
+    y_all.extend(ssim_all_list)
+
+    y_min = float(min(y_all))
+    y_max = float(max(y_all))
+    y_min -= 0.1
+    y_max += 0.1
+
+    if (y_min <= 0.0):
+        y_min = 0.0
+    if (y_max >= 1.0):
+        y_max = 1.0
+
+    y_min = round(y_min, 1)
+    y_max = round(y_max, 1)
+
     # 创建绘图对象
     plt.figure(figsize=(10,8))
     
@@ -79,12 +98,12 @@ def ssim_graph(res, dir):
 
     xmajorLocator = MultipleLocator(int(int(len(pic_x_list) / 10) / 10) * 10)
     
-    ymajorLocator = MultipleLocator(10)
+    ymajorLocator = MultipleLocator(0.1)
     ax=plt.gca()
     ax.xaxis.set_major_locator(xmajorLocator)
     ax.yaxis.set_major_locator(ymajorLocator)
     # todo 根据y轴峰峰值做动态调整
-    plt.ylim(0.9,1)
+    plt.ylim(y_min,y_max)
 
     plt.grid(True)
     # plt.show()
