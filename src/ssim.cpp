@@ -315,6 +315,8 @@ int main(int argc, char* argv[])
         std::cout << "file1.mp4 file2.mp4 have different size, check file rotated..." << std::endl;
         if(w1 == h2 && w2 == h1)
             std::cout << "file1.mp4 file2.mp4 rotated ..." << std::endl;
+            // 原来计算的时候，默认就是按翻转的，所以这里先不翻转
+            // todo: 翻转
         else
             return -1;
     }

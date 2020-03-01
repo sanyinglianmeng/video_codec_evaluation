@@ -34,6 +34,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstring>
+#include <opencv2/opencv.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 #include "lib/psnrlib.h"
 
@@ -364,20 +367,40 @@ static float ms_ssim_plane(pixel *pix1, pixel *pix2, int width, int height, int 
     return result;
 }
 
+static int get_video_info(const std::string& video, int& w, int& h){
+    cv::VideoCapture capture;
+    capture.open(video);
+    if (!capture.isOpened()) {
+        std::cout << video << "readin failed, please check it..！\n" << std::endl;
+        return -1;
+    }
+    cv::Size s = cv::Size((int)capture.get(cv::CAP_PROP_FRAME_WIDTH), (int)capture.get(cv::CAP_PROP_FRAME_HEIGHT));
+    w = s.width;
+    h = s.height;
+
+    #ifdef DEBUG
+    std::cout << s.width << std::endl;
+    std::cout << s.height << std::endl;
+    #endif
+
+    capture.release();
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
     FILE *f[2];
     uint8_t *buf[2], *plane[2][3];
     int *temp;
     float ms_ssim[3] = {0, 0, 0};
-    int frame_size, w, h;
+    int frame_size, w1, h1, w2, h2;
     int frames, seek;
     int i;
 
     // 输入格式
-    if (argc < 4 || 2 != sscanf(argv[3], "%dx%d", &w, &h))
+    if (argc < 3)
     {
-        printf("ms-ssim <file1.yuv> <file2.yuv> <width>x<height> [<seek>]\n");
+        printf("msssim <file1.yuv> <file2.yuv> \n");
         return -1;
     }
 
@@ -389,12 +412,28 @@ int main(int argc, char *argv[])
         return 0;
     }
 
+    w1 = 0;
+    h1 = 0;
+    w2 = 0;
+    h2 = 0;
+    int res01 = get_video_info(argv[1], w1, h1);
+    int res02 = get_video_info(argv[2], w2, h2);
+
+    if(res01 != 0 || res02 != 0 || w1 != w2 || h1 != h2){
+        std::cout << "file1.mp4 file2.mp4 have different size, check file rotated..." << std::endl;
+        if(w1 == h2 && w2 == h1)
+            std::cout << "file1.mp4 file2.mp4 rotated ..." << std::endl;
+            // 原来计算的时候，默认就是按翻转的，所以这里先不翻转
+            // todo: 翻转
+        else
+            return -1;
+    }
+
     // 读入两个文件 长x宽
     f[0] = fopen(yuv0.c_str(), "rb");
     f[1] = fopen(yuv1.c_str(), "rb");
-    sscanf(argv[3], "%dx%d", &w, &h);
 
-    if (w <= 0 || h <= 0 || w * (int64_t)h >= INT_MAX / 3 || 2LL * w + 12 >= INT_MAX / sizeof(*temp))
+    if (w1 <= 0 || h1 <= 0 || w1 * (int64_t)h1 >= INT_MAX / 3 || 2LL * w1 + 12 >= INT_MAX / sizeof(*temp))
     {
         fprintf(stderr, "Dimensions are too large, or invalid\n");
         return -2;
@@ -402,7 +441,7 @@ int main(int argc, char *argv[])
 
     // 一帧的内存大小
     // yuv420格式：先w*h个Y，然后1/4*w*h个U，再然后1/4*w*h个
-    frame_size = w * h * 3LL / 2;
+    frame_size = w1 * h1 * 3LL / 2;
 
     // plane[i][0] Y分量信息
     // plane[i][1] U分量信息
@@ -411,8 +450,8 @@ int main(int argc, char *argv[])
     {
         buf[i] = (uint8_t *)malloc(frame_size);
         plane[i][0] = buf[i]; // plane[i][0] = buf[i]
-        plane[i][1] = plane[i][0] + w * h;
-        plane[i][2] = plane[i][1] + w * h / 4;
+        plane[i][1] = plane[i][0] + w1 * h1;
+        plane[i][2] = plane[i][1] + w1 * h1 / 4;
     }
 
     seek = argc < 5 ? 0 : atoi(argv[4]);
@@ -437,12 +476,12 @@ int main(int argc, char *argv[])
             break;
         for (int i = 0; i < 3; i++)
         {
-            ms_ssim_one[i] = ms_ssim_plane(plane[0][i], plane[1][i], w >> !!i, h >> !!i);
+            ms_ssim_one[i] = ms_ssim_plane(plane[0][i], plane[1][i], w1 >> !!i, h1 >> !!i);
             ms_ssim[i] += ms_ssim_one[i];
         }
 
         printf("Frame %d | ", frames);
-        print_results(msssim_log_f, ms_ssim_one, 1, w, h, frames);
+        print_results(msssim_log_f, ms_ssim_one, 1, w1, h1, frames);
         printf("                \r");
         fflush(stdout);
     }
@@ -451,7 +490,7 @@ int main(int argc, char *argv[])
         return 0;
 
     printf("Total: %d frames | ", frames);
-    print_results(msssim_log_f, ms_ssim, frames, w, h, frames);
+    print_results(msssim_log_f, ms_ssim, frames, w1, h1, frames);
     printf("\n");
 
     msssimVisualize(msssim_log);
