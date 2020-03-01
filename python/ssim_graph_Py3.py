@@ -74,16 +74,19 @@ def ssim_graph(res, dir):
 
     y_min = min(y_all)
     y_max = max(y_all)
-    y_min -= 0.1
-    y_max += 0.1
+    v_pp = y_max - y_min
+    # 图上线各留整体的1/8长度
+    plot_y = v_pp / 8
+    y_min -= plot_y
+    y_max += plot_y
 
     if (y_min <= 0.0):
         y_min = 0.0
     if (y_max >= 1.0):
         y_max = 1.0
 
-    y_min = round(y_min, 1)
-    y_max = round(y_max, 1)
+    y_min = round(y_min, 3)
+    y_max = round(y_max, 3)
 
     # 创建绘图对象
     plt.figure(figsize=(10,8))
@@ -101,7 +104,7 @@ def ssim_graph(res, dir):
 
     xmajorLocator = MultipleLocator(int(int(len(pic_x_list) / 10) / 10) * 10)
     
-    ymajorLocator = MultipleLocator(0.1)
+    ymajorLocator = MultipleLocator( round(v_pp/20,3) )
     ax=plt.gca()
     ax.xaxis.set_major_locator(xmajorLocator)
     ax.yaxis.set_major_locator(ymajorLocator)
