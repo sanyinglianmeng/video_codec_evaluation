@@ -312,8 +312,11 @@ int main(int argc, char* argv[])
     int res02 = get_video_info(argv[2], w2, h2);
     
     if(res01 != 0 || res02 != 0 || w1 != w2 || h1 != h2){
-        std::cout << "file1.mp4 file2.mp4 have different size, exiting..." << std::endl;
-        return -1;
+        std::cout << "file1.mp4 file2.mp4 have different size, check file rotated..." << std::endl;
+        if(w1 == h2 && w2 == h1)
+            std::cout << "file1.mp4 file2.mp4 rotated ..." << std::endl;
+        else
+            return -1;
     }
 
     // todo: 根据文件后缀来判断是否要转
