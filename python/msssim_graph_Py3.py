@@ -92,8 +92,8 @@ def ssim_graph(res, dir):
 
     
     plt.xlabel("Frame Number")
-    plt.ylabel("ssim Value")
-    plt.title("ssim Temporal Graph")
+    plt.ylabel("msssim Value")
+    plt.title("msssim Temporal Graph")
     plt.legend()
 
     xmajorLocator = MultipleLocator(int(int(len(pic_x_list) / 10) / 10) * 10)
