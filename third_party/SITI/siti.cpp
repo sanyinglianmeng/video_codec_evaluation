@@ -186,7 +186,7 @@ double computeSI(const cMat &frame1, const cMat &maskValidSobel)
     return stddevSp.val[0];
 }
 
-/*  修改main为调用入口siti_main by Gerren Liu( https://github.com/GerenLiu)
+/*  modify by Gerren Liu( https://github.com/GerenLiu)
 *   thanks Pierre Lebreton, Werner Robitza, Steve Göring
 *   if there is any lisence problem, lease contact me
 */
