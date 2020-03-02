@@ -74,10 +74,12 @@ ifndef OUTPUTDIR
 endif
 
 # 强耦合，底层修改，这里也会生效
-DST=dst-all 
+DST=dst-all
 TEST=test-all
+# 第三方库的编译产出
+THIRDDST=siti
 
-all: $(DST) $(TEST)
+all: $(DST) $(TEST) $(THIRDDST)
 
 include $(TESTDIR)/Makefile
 test-all:
@@ -87,6 +89,10 @@ include $(SRCDIR)/Makefile
 dst-all:
 	make dst-all-sub
 
+# 第三方库的编译产出
+siti: $(THIRDIR)/SITI/siti.o
+	-sh $(THIRDIR)/SITI/build.sh
+
 install:
 	make all
 	$(shell sh build.sh)
@@ -94,8 +100,10 @@ install:
 .PHONY : clean
 clean:
 	-rm -rf $(SRCDIR)/*.o $(SRCCONFDIR)/*.o $(SRCLIBDIR)/*.o $(SRCUTILSDIR)/*.o $(TESTDIR)/*.o \
+    -rm -rf $(THIRDIR)/SITI/*.o \
     -rm -rf $(DSTSUB) \
     -rm -rf $(TESTSUB) \
+    -rm -rf $(THIRDDST) \
     -rm -rf $(OUTPUTDIR)
 
 .PHONY : clean_data

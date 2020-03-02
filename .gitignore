@@ -38,6 +38,7 @@ checkdropframe
 get_frame_seq
 msssim
 ssim
+siti
 
 # Compilation output for test
 test_httprequest
@@ -66,3 +67,4 @@ ssim/*
 msssim/*
 conf/ocr.yaml
 *.avi
+siti.dSYM/*
