@@ -137,3 +137,21 @@ $ ssim videoDB/t13.mp4 videoDB/t12.mp4
 ```shell
 $ msssim videoDB/t13.mp4 videoDB/t12.mp4
 ``` 
+
+## siti
+A upgraded command-line-based tool fo calculate spatial information (SI) and temporal information (TI) according to ITU-T P.910. which base on the work of Pierre Lebreton, Werner Robitza, Steve Göring, thanks a lot, [reference](https://github.com/Telecommunication-Telemedia-Assessment/SITI/ "Link"). 
+
+
+```shell
+--help                    produce help message
+-i [ --input-file ] arg   input: images (BMP, TIFF, PNG, JPEG...), video
+                          (.avi, .mkv, .mp4, .yuv... )
+-w [ --width ] arg        Width of the video (required for yuv).
+-h [ --height ] arg       Height of the video (required for yuv).
+-f [ --color-format ] arg (int) Color representation of YUV format (1:
+                          YUV420p (default), 2: YUV422, 3: YUYV422 (YUY2), 4:
+                          YUYV422 (UYVY), 5: YUV444
+-s [ --summary ]          produce summary statistics (maximum, minimum)
+                          instead of per-frame information
+-c [ --check-input ]      Show in a window how frames are read
+``` 
