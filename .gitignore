@@ -33,6 +33,7 @@
 *.app
 
 # Compilation output
+vce
 vpsnr
 checkdropframe
 get_frame_seq

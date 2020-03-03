@@ -4,7 +4,7 @@
 #####################################################################
 OUTPUTDIR="output"
 DIRS=("bin" "bin/python" "conf" "imgs")
-EXECFILES=("vpsnr" "checkdropframe" "ssim" "msssim" "siti")
+EXECFILES=("vce" "vpsnr" "checkdropframe" "ssim" "msssim" "siti")
 READINGFILES=("README.md" "LICENSE")
 
 rm -rf ${OUTPUTDIR}

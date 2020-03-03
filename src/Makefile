@@ -5,10 +5,13 @@ include third_party/Makefile
 include libs/Makefile
 
 # 底层增加，删除后请在此修改，顶层不用修改
-DSTSUB=get_frame_seq vpsnr checkdropframe ssim msssim
+DSTSUB=vce get_frame_seq vpsnr checkdropframe ssim msssim
 
 # 顶层调用的入口
 dst-all-sub: $(DSTSUB)
+
+vce: $(SRCDIR)/vce.o $(LIBOBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
 
 get_frame_seq: $(SRCDIR)/get_frame_seq.o $(LIBOBJ) 
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
@@ -29,6 +32,9 @@ siti: $(SRCDIR)/siti.o $(LIBOBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)	
 
 # build.
+$(SRCDIR)/vce.o: 
+	$(CXX) $(CXXFLAGS) -c -o $(SRCDIR)/vce.o $(SRCDIR)/vce.cpp $(INCLUDES)
+
 $(SRCDIR)/get_frame_seq.o: 
 	$(CXX) $(CXXFLAGS) -c -o $(SRCDIR)/get_frame_seq.o $(SRCDIR)/get_frame_seq.cpp $(INCLUDES)
 
@@ -56,6 +62,9 @@ $(SRCLIBDIR)/ocrlib.o:
 
 $(SRCLIBDIR)/psnrlib.o: 
 	$(CXX) $(CXXFLAGS) -c -o $(SRCLIBDIR)/psnrlib.o $(SRCLIBDIR)/psnrlib.cpp $(INCLUDES)
+
+$(SRCLIBDIR)/command1.o: 
+	$(CXX) $(CXXFLAGS) -c -o $(SRCLIBDIR)/command1.o $(SRCLIBDIR)/command1.cpp $(INCLUDES)
 
 # src/conf/ 
 $(SRCCONFDIR)/conf.o: 
