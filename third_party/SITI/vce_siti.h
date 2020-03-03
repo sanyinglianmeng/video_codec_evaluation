@@ -1,6 +1,6 @@
-#ifndef OCV_SITI_HPP
-#define OCV_SITI_HPP
+#ifndef OCV_SITI_H
+#define OCV_SITI_H
 
 int vce_siti_main(int argc, char **argv);
 
-#endif /* OCV_SITI_HPP */
+#endif /* OCV_SITI_H */
