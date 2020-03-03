@@ -11,9 +11,3 @@ ifdef INCLUDES
 else
     INCLUDES=$(shell pkg-config --cflags opencv yaml-cpp libavcodec libavformat libavdevice libavutil python3)
 endif
-
-ifdef INCLUDES
-    INCLUDES += 
-else
-    INCLUDES=$(shell pkg-config --cflags opencv yaml-cpp libavcodec libavformat libavdevice libavutil python3)
-endif
