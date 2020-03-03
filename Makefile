@@ -89,9 +89,9 @@ include $(SRCDIR)/Makefile
 dst-all:
 	make dst-all-sub
 
-# 第三方库的编译产出
-siti: $(THIRDIR)/SITI/siti.o
-	-sh $(THIRDIR)/SITI/build.sh
+# 第三方库的siti编译产出
+# siti: $(THIRDIR)/SITI/siti.o
+# 	-sh $(THIRDIR)/SITI/build.sh
 
 install:
 	make all

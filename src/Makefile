@@ -25,6 +25,9 @@ ssim: $(SRCDIR)/ssim.o $(LIBOBJ)
 msssim: $(SRCDIR)/msssim.o $(LIBOBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)	
 
+siti: $(SRCDIR)/siti.o $(LIBOBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)	
+
 # build.
 $(SRCDIR)/get_frame_seq.o: 
 	$(CXX) $(CXXFLAGS) -c -o $(SRCDIR)/get_frame_seq.o $(SRCDIR)/get_frame_seq.cpp $(INCLUDES)
@@ -44,6 +47,9 @@ $(SRCDIR)/ssim.o:
 $(SRCDIR)/msssim.o:
 	$(CXX) $(CXXFLAGS) -c -o $(SRCDIR)/msssim.o $(SRCDIR)/msssim.cpp $(INCLUDES)
 
+$(SRCDIR)/siti.o:
+	$(CXX) $(CXXFLAGS) -c -o $(SRCDIR)/siti.o $(SRCDIR)/siti.cpp $(INCLUDES)
+
 # src/lib/
 $(SRCLIBDIR)/ocrlib.o: 
 	$(CXX) $(CXXFLAGS) -c -o $(SRCLIBDIR)/ocrlib.o $(SRCLIBDIR)/ocrlib.cpp $(INCLUDES)
@@ -58,4 +64,8 @@ $(SRCCONFDIR)/conf.o:
 # src/utils/
 $(SRCUTILSDIR)/matrixutils.o: 
 	$(CXX) $(CXXFLAGS) -c -o $(SRCUTILSDIR)/matrixutils.o $(SRCUTILSDIR)/matrixutils.cpp $(INCLUDES)
+
+# third_parth/SITI/
+$(THIRDIR)/SITI/vce_siti.o: 
+	$(CXX) $(CXXFLAGS) -c -o $(THIRDIR)/SITI/vce_siti.o $(THIRDIR)/SITI/vce_siti.cpp $(INCLUDES)
 endif
