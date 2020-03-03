@@ -6,6 +6,6 @@ ifndef LIBOBJ
              $(SRCLIBDIR)/psnrlib.o \
              $(SRCLIBDIR)/ocrlib.o \
              $(SRCUTILSDIR)/cmdlineutils.o \
-             # 封装第三方库的lib，也统一放到这里
+             # 封装第三方库的lib，也统一放到这里，第三方的库封装统一用vce_作为前缀
              $(THIRDIR)/SITI/vce_siti.o
 endif
