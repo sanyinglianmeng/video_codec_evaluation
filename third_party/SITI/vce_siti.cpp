@@ -23,7 +23,7 @@
 #include <functional> // c++11 feature
 
 #include "cxxopts.hpp" // cli argument parsing
-#include "vce_siti.hpp"
+#include "vce_siti.h"
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>

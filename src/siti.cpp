@@ -1,4 +1,4 @@
-#include "../third_party/SITI/vce_siti.hpp"
+#include "../third_party/SITI/vce_siti.h"
 
 int main(int argc, char **argv)
 {
