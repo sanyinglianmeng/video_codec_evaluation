@@ -90,7 +90,7 @@ dst-all:
 	make dst-all-sub
 
 # 第三方库的siti编译产出
-# siti: $(THIRDIR)/SITI/siti.o
+# siti_t: $(THIRDIR)/SITI/siti.o
 # 	-sh $(THIRDIR)/SITI/build.sh
 
 install:
