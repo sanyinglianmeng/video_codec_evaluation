@@ -1,5 +1,5 @@
-#ifndef Command1_h
-#define Command1_h
+#ifndef CMD_SSIM_H
+#define CMD_SSIM_H
 
 #include "vce_commands_base.h"
 #include <iostream>
@@ -7,11 +7,11 @@
 
 namespace vce {
 
-class Command1 : public Base {
+class ssim : public Base {
 public:
     void run(int argc, char *argv[]);
 };
 
 } // namespace vce
 
-#endif /* Command1_h */
+#endif /* CMD_SSIM_H */

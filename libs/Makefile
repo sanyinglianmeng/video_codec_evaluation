@@ -7,6 +7,7 @@ ifndef LIBOBJ
              $(SRCLIBDIR)/psnrlib.o \
              $(SRCLIBDIR)/ocrlib.o \
              $(SRCLIBDIR)/command1.o \
+             $(SRCLIBDIR)/cmd_ssim.o \
              $(SRCUTILSDIR)/cmdlineutils.o \
              $(THIRDIR)/SITI/vce_siti.o
 endif

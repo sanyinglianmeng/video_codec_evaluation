@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string>
 
+#include "lib/cmd_ssim.h"
 #include "lib/command1.h"
 #include "utils/cmdlineutils.h"
 
@@ -51,6 +52,7 @@ public:
 
 // 新加的工具在此注册
 REGISTER(Command1);
+REGISTER(ssim);
 
 } // namespace vce
 
@@ -69,7 +71,7 @@ int main(int argc, char *argv[]) {
     }
 
     // 根据str_vce_all_orders构造str_vce_cmdhelp
-    std::string str_vce_cmdhelp = "vce command: ";
+    std::string str_vce_cmdhelp = "vce command [options]: ";
     str_vce_cmdhelp += str_vce_all_orders;
 
     cmdline::parser cmdPara;
@@ -80,9 +82,16 @@ int main(int argc, char *argv[]) {
 
     vce::Base *p = NULL;
 
-    // todo: str_command合法性检查，是否在set_vce_all_orders中
+    // str_command合法性检查，要在set_vce_all_orders中注册
+    if (set_vce_all_orders.find(str_command) == set_vce_all_orders.end()) {
+        std::cerr << "cmd option is not valid. " << std::endl;
+        std::cerr << cmdPara.usage();
+        return 0;
+    }
+
     p = (vce::Base *)vce::VceCommandsFactory::getInstance().CreateObjectByName(str_command);
-    p->print();
+    // run函数作为command执行的统一入口
+    p->run(argc, argv);
 
     return 0;
 }

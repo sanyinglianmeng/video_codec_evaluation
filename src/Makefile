@@ -57,6 +57,9 @@ $(SRCDIR)/siti.o:
 	$(CXX) $(CXXFLAGS) -c -o $(SRCDIR)/siti.o $(SRCDIR)/siti.cpp $(INCLUDES)
 
 # src/lib/
+$(SRCLIBDIR)/cmd_ssim.o: 
+	$(CXX) $(CXXFLAGS) -c -o $(SRCLIBDIR)/cmd_ssim.o $(SRCLIBDIR)/cmd_ssim.cpp $(INCLUDES)
+
 $(SRCLIBDIR)/ocrlib.o: 
 	$(CXX) $(CXXFLAGS) -c -o $(SRCLIBDIR)/ocrlib.o $(SRCLIBDIR)/ocrlib.cpp $(INCLUDES)
 
