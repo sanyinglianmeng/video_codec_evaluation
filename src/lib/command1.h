@@ -10,6 +10,9 @@ namespace vce {
 class Command1 : public Base {
 public:
     void run(int argc, char *argv[]);
+
+private:
+    void params_check(int argc, char *argv[]);
 };
 
 } // namespace vce

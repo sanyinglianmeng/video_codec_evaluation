@@ -71,21 +71,23 @@ int main(int argc, char *argv[]) {
     }
 
     // 根据str_vce_all_orders构造str_vce_cmdhelp
-    std::string str_vce_cmdhelp = "vce command [options]: ";
+    std::string str_vce_cmdhelp = "vce [command options]: ";
     str_vce_cmdhelp += str_vce_all_orders;
-
-    cmdline::parser cmdPara;
-    cmdPara.add<std::string>("cmd", 'c', str_vce_cmdhelp, true, "");
-    cmdPara.parse_check(argc, argv);
-
-    std::string str_command = cmdPara.get<std::string>("cmd");
 
     vce::Base *p = NULL;
 
     // str_command合法性检查，要在set_vce_all_orders中注册
+    std::string str_command = "";
+    if (argc > 1) {
+        str_command = argv[1];
+    }
+    else {
+        std::cerr << "too little params been got. please use: \n" << str_vce_cmdhelp << "as option " << std::endl;
+        return 0;
+    }
+
     if (set_vce_all_orders.find(str_command) == set_vce_all_orders.end()) {
-        std::cerr << "cmd option is not valid. " << std::endl;
-        std::cerr << cmdPara.usage();
+        std::cerr << "cmd option is not valid. please use: \n" << str_vce_cmdhelp << "as option " << std::endl;
         return 0;
     }
 
