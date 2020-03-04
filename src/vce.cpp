@@ -56,7 +56,7 @@ REGISTER(Command1);
 
 int main(int argc, char *argv[]) {
 
-    // vce支持的命令集合
+    // vce支持的命令集合, 新加的工具在此也要注册下
     std::set<std::string> set_vce_all_orders = {"vpsnr", "checkdropframe", "ssim", "msssim", "siti"};
     // 避免初始化语句太长了，如果要新加的工具，也可以在这里insert
     // vce_orders.insert("siti");
