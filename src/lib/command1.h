@@ -13,6 +13,9 @@ public:
 
 private:
     void params_check(int argc, char *argv[]);
+    void pre_action();
+    void do_action();
+    void after_action();
 };
 
 } // namespace vce

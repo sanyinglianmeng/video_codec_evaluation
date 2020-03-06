@@ -59,7 +59,8 @@ REGISTER(ssim);
 int main(int argc, char *argv[]) {
 
     // vce支持的命令集合, 新加的工具在此也要注册下
-    std::set<std::string> set_vce_all_orders = {"vpsnr", "checkdropframe", "ssim", "msssim", "siti"};
+    // std::set<std::string> set_vce_all_orders = {"vpsnr", "checkdropframe", "ssim", "msssim", "siti"};
+    std::set<std::string> set_vce_all_orders = {"ssim"};
     // 避免初始化语句太长了，如果要新加的工具，也可以在这里insert
     // vce_orders.insert("siti");
 
@@ -73,8 +74,6 @@ int main(int argc, char *argv[]) {
     // 根据str_vce_all_orders构造str_vce_cmdhelp
     std::string str_vce_cmdhelp = "vce [command options]: ";
     str_vce_cmdhelp += str_vce_all_orders;
-
-    vce::Base *p = NULL;
 
     // str_command合法性检查，要在set_vce_all_orders中注册
     std::string str_command = "";
@@ -91,8 +90,13 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
+    vce::Base *p = NULL;
+
     p = (vce::Base *)vce::VceCommandsFactory::getInstance().CreateObjectByName(str_command);
-    // run函数作为command执行的统一入口
+// run函数作为command执行的统一入口
+#ifdef DEBUG
+    std::cout << "begin command " << str_command << std::endl;
+#endif
     p->run(argc, argv);
 
     return 0;
