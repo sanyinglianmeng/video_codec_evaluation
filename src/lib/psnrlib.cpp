@@ -524,13 +524,11 @@ bool mp42yuv(const std::string &mp4, std::string &yuv) {
     AVPacket *pkt = (AVPacket *) av_malloc(sizeof(AVPacket));
     av_init_packet(pkt);
     
-
     int f = -1;
-    int f1 = -1;
-    int f2 = -1;
 
     while (true) {
         if (av_read_frame(pContext, pkt) < 0) {
+            std::cout << "av_read_frame error" << std::endl;
             fclose(yuv_file);
             break;
         }
@@ -539,34 +537,36 @@ bool mp42yuv(const std::string &mp4, std::string &yuv) {
             continue;
         }
         
-        int got_picture = 0;
         int ret = 0;
         AVFrame *pFrame  = av_frame_alloc();
         AVFrame *pFrameR = av_frame_alloc();
 
-        ret = avcodec_decode_video2(pCodecCtx, pFrameR, &got_picture, pkt);
-        ++f1;
-
+        ret = avcodec_send_packet(pCodecCtx, pkt);
         if (ret < 0) {
+            std::cout << "avcodec_send_packet return value < 0" << std::endl;
             break;
         }
 
-        if (rotate == 90) {
-            uint8_t* buffer = (uint8_t*)av_malloc(av_image_get_buffer_size(AV_PIX_FMT_YUV420P, pCodecCtx->height, pCodecCtx->width, 1));
-            av_image_fill_arrays(pFrame->data, pFrame->linesize, buffer, AV_PIX_FMT_YUV420P, pCodecCtx->height, pCodecCtx->width, 1);
-            Rotate90(pFrameR, pFrame);
-        } else if (rotate == 270) {
-            uint8_t* buffer = (uint8_t*)av_malloc(av_image_get_buffer_size(AV_PIX_FMT_YUV420P, pCodecCtx->height, pCodecCtx->width, 1));
-            av_image_fill_arrays(pFrame->data, pFrame->linesize, buffer, AV_PIX_FMT_YUV420P, pCodecCtx->height, pCodecCtx->width, 1);
-            Rotate270(pFrameR, pFrame);
-        } else {
-            pFrame = pFrameR;
-        }
+        while (ret >= 0) {
+            ret = avcodec_receive_frame(pCodecCtx, pFrameR);
+            if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
+                break;
+            } else if (ret < 0) {
+                break;
+            }
 
-        ++f2;
+            if (rotate == 90) {
+                uint8_t* buffer = (uint8_t*)av_malloc(av_image_get_buffer_size(AV_PIX_FMT_YUV420P, pCodecCtx->height, pCodecCtx->width, 1));
+                av_image_fill_arrays(pFrame->data, pFrame->linesize, buffer, AV_PIX_FMT_YUV420P, pCodecCtx->height, pCodecCtx->width, 1);
+                Rotate90(pFrameR, pFrame);
+            } else if (rotate == 270) {
+                uint8_t* buffer = (uint8_t*)av_malloc(av_image_get_buffer_size(AV_PIX_FMT_YUV420P, pCodecCtx->height, pCodecCtx->width, 1));
+                av_image_fill_arrays(pFrame->data, pFrame->linesize, buffer, AV_PIX_FMT_YUV420P, pCodecCtx->height, pCodecCtx->width, 1);
+                Rotate270(pFrameR, pFrame);
+            } else {
+                pFrame = pFrameR;
+            }
 
-        // std::cout << "got_picture: " << got_picture << std::endl;
-        if (got_picture) {
             ++f;
             char* buf = new char[pCodecCtx->height * pCodecCtx->width * 3 / 2];
             memset(buf, 0, pCodecCtx->height * pCodecCtx->width * 3 / 2);
@@ -598,10 +598,11 @@ bool mp42yuv(const std::string &mp4, std::string &yuv) {
             delete[] buf;
             buf = NULL;
         }
+
         av_frame_free(&pFrame);
     }
 
-    // std::cout << "the f is : " << f << ", f1 is : " << f1 << ", f2 is : " << f2 << std::endl;
+     // std::cout << "the f is : " << f << std::endl;
 
     fclose(yuv_file);
     avcodec_close(pCodecCtx);
